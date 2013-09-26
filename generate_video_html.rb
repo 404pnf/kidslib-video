@@ -6,14 +6,11 @@ def generate_video_html(path)
 	CSV.read(path).each do |id, title, *_|
     id.strip! # 有些id的文本前面有空白！
     page_title = title
-    flv_url = "flv/#{ id }.flv"
-
-    input = File.read('views/index.eruby')
-    eruby = Erubis::Eruby.new(input)    # create Eruby object
-    index_html =  eruby.result(binding) # get result
-
+    flv_url = "../flv/#{ id }.flv"
+    tpl= Erubis::Eruby.new(File.read('views/index.eruby'))
+    index_html = tpl.result(binding)
     p "生成 #{ id }.html "
-    File.write("output/#{ id }.html", index_html)
+    File.write("output/html/#{ id }.html", index_html)
   end
 end
 
@@ -23,6 +20,7 @@ def copy_asset_to_output
   # use following code.
   # cp_r('src', 'dest') makes dest/src,
   # but this doesn't.
+  # views目录后的点 '.' 表示复制该目录下所有内容，但不创建该目录
   FileUtils.cp_r 'views/.', 'output', :verbose => true
 end
 
