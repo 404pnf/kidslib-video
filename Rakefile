@@ -23,13 +23,13 @@ end
 
 desc "deploy"
 task :deploy do
-  puts "同步到服务器了" if system('rsync -avz output/* wxkj:/var/www/ilearning/video/')
+  system("rsync -avz output/* wxkj:/var/www/ilearning/video/")
+  puts "\n\n同步到服务器了"
 end
 
 desc "generate and deploy"
 task :all => [:gen, :deploy] do
-  puts ''
-  puts 'Rake: 生成html并部署到服务器'
+  puts "\nRake: 生成html并部署到服务器了。"
 end
 
 task :default => [:help]
