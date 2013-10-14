@@ -12,7 +12,8 @@
 # 为了方便让有ruby但没有gem的环境使用，尽量都使用标准库中的东西。
 require 'csv'
 require 'erb'
-require 'FileUtils'
+require 'fileutils'
+require 'benchmark'
 #require 'erubis'
 #require 'profile'
 
@@ -39,7 +40,7 @@ def generate_video_html(path)
     context = {id: id, page_titile: page_title, flv_url: flv_url}
     #index_html = Erubis::Eruby.new(File.read('views/index.eruby')).result(binding)
     index_html = ERB.new(File.read('views/index.eruby')).result(binding)
-    p "生成 #{ id }.html "
+    #p "生成 #{ id }.html "
     File.write("output/html/#{ id }.html", index_html)
   end
 end
@@ -49,11 +50,19 @@ def copy_asset_to_output
   FileUtils.cp_r 'views/.', 'output', :verbose => true
 end
 
-# ## 干活
-if __FILE__ == $PROGRAM_NAME
-  path = ARGV[0] || 'csv/all-video.csv'
-  p "输入文件是#{ path }"
-  generate_video_html(path)
-  copy_asset_to_output
-  exec "ruby deploy-video.rb" 
+# ## a timer
+def time(&block)
+  t = Time.now
+  result = block.call
+  puts "\nCompleted in #{(Time.now - t)} seconds\n\n"
+  result
 end
+
+# ## 干活
+def video
+  path = 'csv/all-video.csv'
+  puts "\n输入文件是#{ path }"
+  time { generate_video_html(path) }
+  copy_asset_to_output
+end
+
