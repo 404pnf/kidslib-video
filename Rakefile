@@ -1,5 +1,13 @@
 require_relative 'generate_video_html.rb'
 
+# ## a timer
+def time(&block)
+  t = Time.now
+  result = block.call
+  puts "\nCompleted in #{(Time.now - t)} seconds\n\n"
+  result
+end
+
 desc "help msg"
 task :help do
   puts 'rake gen:  生成html'
@@ -10,7 +18,7 @@ end
 
 desc "generate html"
 task :gen do
-  video
+  time { video }
 end
 
 desc "deploy"

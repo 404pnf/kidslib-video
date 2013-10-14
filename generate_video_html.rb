@@ -1,9 +1,11 @@
 # ## 使用方法
-#      ruby script.rb _csv/video.csv
+#
+# 1. 输入的csv文件写死在脚本中了。为了能够方便使用rake生成部署
+# 2. rake 查看可执行任务
 #
 #
 # ## 用途
-# 从csv每条记录生成赌赢的html
+# 从csv每条记录生成对应的html
 #
 # ----
 
@@ -13,9 +15,7 @@
 require 'csv'
 require 'erb'
 require 'fileutils'
-require 'benchmark'
 #require 'erubis'
-#require 'profile'
 
 # ## CSV格式
 # 请确保csv文件的header与下面一一对应！
@@ -40,7 +40,7 @@ def generate_video_html(path)
     context = {id: id, page_titile: page_title, flv_url: flv_url}
     #index_html = Erubis::Eruby.new(File.read('views/index.eruby')).result(binding)
     index_html = ERB.new(File.read('views/index.eruby')).result(binding)
-    #p "生成 #{ id }.html "
+    p "生成 #{ id }.html "
     File.write("output/html/#{ id }.html", index_html)
   end
 end
@@ -50,19 +50,10 @@ def copy_asset_to_output
   FileUtils.cp_r 'views/.', 'output', :verbose => true
 end
 
-# ## a timer
-def time(&block)
-  t = Time.now
-  result = block.call
-  puts "\nCompleted in #{(Time.now - t)} seconds\n\n"
-  result
-end
-
 # ## 干活
 def video
   path = 'csv/all-video.csv'
   puts "\n输入文件是#{ path }"
-  time { generate_video_html(path) }
+  generate_video_html(path)
   copy_asset_to_output
 end
-
