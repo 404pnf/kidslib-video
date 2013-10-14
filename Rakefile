@@ -32,4 +32,9 @@ task :all => [:gen, :deploy] do
   puts "\nRake: 生成html并部署到服务器了。"
 end
 
+desc "preview html"
+task :preview do
+  system("python -m SimpleHTTPServer")
+end
+
 task :default => [:help]
