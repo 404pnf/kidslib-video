@@ -14,6 +14,7 @@ require 'csv'
 require 'erb'
 require 'FileUtils'
 #require 'erubis'
+#require 'profile'
 
 # ## CSV格式
 # 请确保csv文件的header与下面一一对应！
@@ -34,7 +35,7 @@ require 'FileUtils'
 # ----
 def generate_video_html(path)
   CSV.table(path, converters: nil).each do |csv|
-    id, page_title, flv_url = csv[:video], csv[:title], "../flv/#{csv[:video]}.flv"
+    id, page_title, flv_url = csv[:video].strip, csv[:title].strip, "../flv/#{csv[:video].strip}.flv"
     context = {id: id, page_titile: page_title, flv_url: flv_url}
     #index_html = Erubis::Eruby.new(File.read('views/index.eruby')).result(binding)
     index_html = ERB.new(File.read('views/index.eruby')).result(binding)
@@ -54,4 +55,5 @@ if __FILE__ == $PROGRAM_NAME
   p "输入文件是#{ path }"
   generate_video_html(path)
   copy_asset_to_output
+  exec "ruby deploy-video.rb" 
 end
