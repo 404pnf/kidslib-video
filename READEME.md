@@ -7,4 +7,4 @@
 
 ## 使用方法
 
-ruby -w input.csv
+rake
