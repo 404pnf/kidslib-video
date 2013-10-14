@@ -10,10 +10,7 @@ end
 
 desc "help msg"
 task :help do
-  puts 'rake gen:  生成html'
-  puts 'rake deploy:  部署html和静态文件到服务器'
-  puts 'rake all:  相当于先rake gen再rake deploy'
-  puts 'rake -T:  查看所有任务'
+  system('rake -T')
 end
 
 desc "generate html"
@@ -35,6 +32,11 @@ end
 desc "preview html"
 task :preview do
   system("python -m SimpleHTTPServer")
+end
+
+desc "generating docs"
+task :doc do
+  system("docco *.rb")
 end
 
 task :default => [:help]
