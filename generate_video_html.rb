@@ -15,7 +15,7 @@
 require 'csv'
 require 'erb'
 require 'fileutils'
-#require 'erubis'
+require 'erubis'
 
 # ## CSV格式
 # 请确保csv文件的header与下面一一对应！
@@ -38,8 +38,8 @@ def generate_video_html(path)
   CSV.table(path, converters: nil).each do |csv|
     id, page_title, flv_url = csv[:video].strip, csv[:title].strip, "../flv/#{csv[:video].strip}.flv"
     #context = {id: id, page_titile: page_title, flv_url: flv_url}
-    #index_html = Erubis::Eruby.new(File.read('views/index.eruby')).result(binding)
-    index_html = ERB.new(File.read('views/index.eruby')).result(binding)
+    index_html = Erubis::Eruby.new(File.read('views/index.eruby')).result(binding)
+    #index_html = ERB.new(File.read('views/index.eruby')).result(binding)
     p "生成 #{ id }.html "
     File.write("output/html/#{ id }.html", index_html)
   end
