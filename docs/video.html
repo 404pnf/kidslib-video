@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>generate_video_html.rb</title>
+  <title>video.rb</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -36,7 +36,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>generate_video_html.rb</h1>
+                  <h1>video.rb</h1>
               </div>
           </li>
         
@@ -76,7 +76,8 @@
             
             <div class="content"><div class='highlight'><pre><span class="keyword">require</span> <span class="string">'csv'</span>
 <span class="keyword">require</span> <span class="string">'erb'</span>
-<span class="keyword">require</span> <span class="string">'fileutils'</span></pre></div></div>
+<span class="keyword">require</span> <span class="string">'fileutils'</span>
+<span class="keyword">require</span> <span class="string">'erubis'</span></pre></div></div>
             
         </li>
         
@@ -84,11 +85,10 @@
         <li id="section-3">
             <div class="annotation">
               
-              <div class="pilwrap ">
+              <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>require &#39;erubis&#39;</p>
-<h2>CSV格式</h2>
+              <h2>CSV格式</h2>
 <p>请确保csv文件的header与下面一一对应！</p>
 <pre><code>  &quot;title&quot;,&quot;video&quot;,&quot;category&quot;,&quot;age&quot;
   &quot;穿鞋真舒服&quot;,&quot; hb12_music_01&quot;,&quot;欢乐音乐屋&quot;,&quot;1-3岁&quot;</code></pre>
@@ -128,29 +128,30 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">Video</span></span>
-  <span class="function"><span class="keyword">def</span> <span class="title">initialzie</span><span class="params">(file)</span></span>
-    <span class="variable">@csv</span> = <span class="constant">CSV</span>.table file, <span class="symbol">converters:</span> <span class="keyword">nil</span>
+
+  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(file)</span></span>
+    <span class="variable">@h</span> = <span class="constant">CSV</span>.table(file, <span class="symbol">converters:</span> <span class="keyword">nil</span>).map(&amp;<span class="symbol">:to_hash</span>)
   <span class="keyword">end</span>
 
   <span class="function"><span class="keyword">def</span> <span class="title">each_video</span></span>
-    <span class="variable">@csv</span>.each <span class="keyword">do</span> |e|
-      h = e.to_hash
-      id, page_title = csv[<span class="symbol">:video</span>].strip, csv[<span class="symbol">:title</span>].strip
-      flv_url = <span class="string">"../flv/<span class="subst">#{csv[<span class="symbol">:video</span>].strip}</span>.flv"</span>
-      context = {<span class="symbol">id:</span> id, <span class="symbol">page_titile:</span> page_title, <span class="symbol">flv_url:</span> flv_url}
+    <span class="variable">@h</span>.each <span class="keyword">do</span> |e|
+      id, title = e[<span class="symbol">:video</span>].strip, e[<span class="symbol">:title</span>].strip
+      flv_url = <span class="string">"../flv/<span class="subst">#{ e[<span class="symbol">:video</span>].strip }</span>.flv"</span>
+      context = {<span class="symbol">id:</span> id, <span class="symbol">title:</span> title, <span class="symbol">flv_url:</span> flv_url}
       <span class="keyword">yield</span> context
     <span class="keyword">end</span>
   <span class="keyword">end</span>
+
 <span class="keyword">end</span>
 
-<span class="function"><span class="keyword">def</span> <span class="title">erb_bind</span><span class="params">(context)</span></span>
+<span class="function"><span class="keyword">def</span> <span class="title">bind</span><span class="params">(tpl)</span></span>
   lambda { |context|
-    html = <span class="constant">ERB</span>.new(<span class="constant">File</span>.read(<span class="string">'views/index.eruby'</span>)).result(context)}
+    eruby = <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl))
+    html =  eruby.evaluate(context)
+    p <span class="string">"write <span class="subst">#{ context[<span class="symbol">:id</span>] }</span> "</span>
     <span class="constant">File</span>.write(<span class="string">"_newoutput/html/<span class="subst">#{ context[<span class="symbol">:id</span>] }</span>.html"</span>, html)
   }
-<span class="keyword">end</span>
-
-v = <span class="constant">View</span>.new <span class="string">'csv/all-video.csv'</span></pre></div></div>
+<span class="keyword">end</span></pre></div></div>
             
         </li>
         
@@ -168,6 +169,40 @@ v = <span class="constant">View</span>.new <span class="string">'csv/all-video.c
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">copy_asset_to_output</span></span>
   <span class="constant">FileUtils</span>.cp_r <span class="string">'views/.'</span>, <span class="string">'output'</span>, <span class="symbol">:verbose</span> =&gt; <span class="keyword">true</span>
 <span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h2>main</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">video</span><span class="params">(file, tpl)</span></span>
+  v = <span class="constant">Video</span>.new(file)
+  tpl = bind(tpl)
+  v.each_video { |e| tpl.call e}
+  copy_asset_to_output
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <h2>干活</h2>
+<p>video(&#39;csv/all-video.csv&#39;, &#39;views/index.eruby&#39;)</p>
+
+            </div>
             
         </li>
         

@@ -15,7 +15,7 @@
 require 'csv'
 require 'erb'
 require 'fileutils'
-#require 'erubis'
+require 'erubis'
 
 # ## CSV格式
 # 请确保csv文件的header与下面一一对应！
@@ -36,32 +36,41 @@ require 'fileutils'
 # ----
 
 class Video
-  def initialzie(file)
-    @csv = CSV.table file, converters: nil
+
+  def initialize(file)
+    @h = CSV.table(file, converters: nil).map(&:to_hash)
   end
 
   def each_video
-    @csv.each do |e|
-      h = e.to_hash
-      id, page_title = csv[:video].strip, csv[:title].strip
-      flv_url = "../flv/#{csv[:video].strip}.flv"
-      context = {id: id, page_titile: page_title, flv_url: flv_url}
+    @h.each do |e|
+      id, title = e[:video].strip, e[:title].strip
+      flv_url = "../flv/#{ e[:video].strip }.flv"
+      context = {id: id, title: title, flv_url: flv_url}
       yield context
     end
   end
+
 end
 
-def erb_bind(context)
+def bind(tpl)
   lambda { |context|
-    html = ERB.new(File.read('views/index.eruby')).result(context)}
+    eruby = Erubis::Eruby.new(File.read(tpl))
+    html =  eruby.evaluate(context)
+    p "write #{ context[:id] } "
     File.write("_newoutput/html/#{ context[:id] }.html", html)
   }
 end
 
-v = View.new 'csv/all-video.csv'
-
 # views目录后的点 '.' 表示复制该目录下所有内容，但不创建该目录
 def copy_asset_to_output
   FileUtils.cp_r 'views/.', 'output', :verbose => true
+end
+
+# ## main
+def video
+  v = Video.new 'csv/all-video.csv'
+  tpl = bind 'views/index.eruby'
+  v.each_video { |e| tpl.call e}
+  copy_asset_to_output
 end
 
