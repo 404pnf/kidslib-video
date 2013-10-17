@@ -1,4 +1,4 @@
-require_relative 'generate_video_html.rb'
+require_relative 'video.rb'
 
 # ## a timer
 def time(&block)

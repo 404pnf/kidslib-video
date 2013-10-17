@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>generate_video_html.rb</title>
+  <title>video.rb</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -15,7 +15,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>generate_video_html.rb</h1>
+                  <h1>video.rb</h1>
               </div>
           </li>
         
@@ -48,14 +48,13 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <h2>需要库</h2>
-<p>不再用erubis了。因为erb是ruby标准库的。
-为了方便让有ruby但没有gem的环境使用，尽量都使用标准库中的东西。</p>
+<p>为了方便让有ruby但没有gem的环境使用，尽量都使用标准库中的东西。</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="keyword">require</span> <span class="string">'csv'</span>
-<span class="keyword">require</span> <span class="string">'erb'</span>
-<span class="keyword">require</span> <span class="string">'fileutils'</span></pre></div></div>
+<span class="keyword">require</span> <span class="string">'fileutils'</span>
+<span class="keyword">require</span> <span class="string">'erubis'</span></pre></div></div>
             
         </li>
         
@@ -63,15 +62,18 @@
         <li id="section-3">
             <div class="annotation">
               
-              <div class="pilwrap ">
+              <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>require &#39;erubis&#39;</p>
-<h2>CSV格式</h2>
+              <h2>CSV格式</h2>
 <p>请确保csv文件的header与下面一一对应！</p>
 <pre><code>  &quot;title&quot;,&quot;video&quot;,&quot;category&quot;,&quot;age&quot;
   &quot;穿鞋真舒服&quot;,&quot; hb12_music_01&quot;,&quot;欢乐音乐屋&quot;,&quot;1-3岁&quot;</code></pre>
-<p>只要把video添加.flv后缀就是视频文件的文件名</p>
+<ol>
+<li>只要把video添加.flv后缀就是视频文件的文件名</li>
+<li>vidoe对应的值也作为文件名，添加.html后缀</li>
+<li>video对应的值是唯一的</li>
+</ol>
 <hr>
 
             </div>
@@ -86,10 +88,10 @@
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <h2>主程序</h2>
-<p>我们需要为erubis tpl准备3个变量。</p>
-<pre><code>  id, page_title, flv_url</code></pre>
-<p>对应csv中的</p>
-<pre><code>  video, title, video+&#39;.flv&#39;</code></pre>
+<ol>
+<li>erubis中的@var 名就是csv的header对应的值</li>
+<li>有些记录有前后空白，需要strip掉</li>
+</ol>
 <hr>
 
             </div>
@@ -106,10 +108,17 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">generate_video_html</span><span class="params">(path)</span></span>
-  <span class="constant">CSV</span>.table(path, <span class="symbol">converters:</span> <span class="keyword">nil</span>).each <span class="keyword">do</span> |csv|
-    id, page_title, flv_url = csv[<span class="symbol">:video</span>].strip, csv[<span class="symbol">:title</span>].strip, <span class="string">"../flv/<span class="subst">#{csv[<span class="symbol">:video</span>].strip}</span>.flv"</span>
-    context = {<span class="symbol">id:</span> id, <span class="symbol">page_titile:</span> page_title, <span class="symbol">flv_url:</span> flv_url}</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">Video</span></span>
+  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(file)</span></span>
+    <span class="variable">@h</span> = <span class="constant">CSV</span>.table(file, <span class="symbol">converters:</span> <span class="keyword">nil</span>).map(&amp;<span class="symbol">:to_hash</span>)
+  <span class="keyword">end</span>
+
+  <span class="function"><span class="keyword">def</span> <span class="title">each_video</span></span>
+    <span class="variable">@h</span>.each <span class="keyword">do</span> |e| 
+      <span class="keyword">yield</span> e.each_with_object({}) { |(k, v), o| o[k] = v.strip } 
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
             
         </li>
         
@@ -120,14 +129,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>index_html = Erubis::Eruby.new(File.read(&#39;views/index.eruby&#39;)).result(binding)</p>
+              <p>这里用了 closure 啊 :)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    index_html = <span class="constant">ERB</span>.new(<span class="constant">File</span>.read(<span class="string">'views/index.eruby'</span>)).result(binding)
-    p <span class="string">"生成 <span class="subst">#{ id }</span>.html "</span>
-    <span class="constant">File</span>.write(<span class="string">"output/html/<span class="subst">#{ id }</span>.html"</span>, index_html)
-  <span class="keyword">end</span>
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">bind</span><span class="params">(tpl)</span></span>
+  lambda { |context| <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl)).evaluate(context) }
 <span class="keyword">end</span></pre></div></div>
             
         </li>
@@ -156,14 +163,18 @@
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <h2>干活</h2>
+              <h2>main</h2>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">video</span></span>
-  path = <span class="string">'csv/all-video.csv'</span>
-  puts <span class="string">"\n输入文件是<span class="subst">#{ path }</span>"</span>
-  generate_video_html(path)
+  v = <span class="constant">Video</span>.new <span class="string">'csv/all-video.csv'</span>
+  tpl = bind <span class="string">'views/index.eruby'</span>
+  v.each_video <span class="keyword">do</span> |e| 
+    html = tpl.call e
+    p <span class="string">"write output/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span> "</span>
+    <span class="constant">File</span>.write(<span class="string">"output/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span>.html"</span>, html)
+  <span class="keyword">end</span>
   copy_asset_to_output
 <span class="keyword">end</span></pre></div></div>
             
