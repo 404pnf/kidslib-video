@@ -20,7 +20,7 @@ end
 
 desc "deploy"
 task :deploy do
-  system("rsync -avz output/* wxkj:/var/www/ilearning/video/")
+  system("rsync -avz _output/* wxkj:/var/www/ilearning/video/")
   puts "\n\n同步到服务器了"
 end
 
@@ -37,6 +37,16 @@ end
 desc "generating docs"
 task :doc do
   system("docco *.rb")
+end
+
+desc "show stats of line of code "
+task :loc do
+  system("cloc *.rb")
+end
+
+desc "run robocop"
+task :cop do
+  system("rubocop *.rb")
 end
 
 task :default => [:help]

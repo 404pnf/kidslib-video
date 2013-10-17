@@ -37,31 +37,30 @@ class Video
   end
 
   def each_video
-    @h.each do |e| 
-      yield e.each_with_object({}) { |(k, v), o| o[k] = v.strip } 
+    @h.each do |e|
+      yield e.each_with_object({}) { |(k, v), o| o[k] = v.strip }
     end
   end
 end
 
 # 这里用了 closure 啊 :)
 def bind(tpl)
-  lambda { |context| Erubis::Eruby.new(File.read(tpl)).evaluate(context) }
+  -> context { Erubis::Eruby.new(File.read(tpl)).evaluate(context) }
 end
 
 # views目录后的点 '.' 表示复制该目录下所有内容，但不创建该目录
 def copy_asset_to_output
-  FileUtils.cp_r 'views/.', 'output', :verbose => true
+  FileUtils.cp_r 'views/.', 'output', verbose: true
 end
 
 # ## main
 def video
   v = Video.new 'csv/all-video.csv'
   tpl = bind 'views/index.eruby'
-  v.each_video do |e| 
+  v.each_video do |e|
     html = tpl.call e
     p "write output/html/#{ e[:video] } "
-    File.write("output/html/#{ e[:video] }.html", html)
+    File.write("_output/html/#{ e[:video] }.html", html)
   end
   copy_asset_to_output
 end
-

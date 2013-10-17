@@ -114,8 +114,8 @@
   <span class="keyword">end</span>
 
   <span class="function"><span class="keyword">def</span> <span class="title">each_video</span></span>
-    <span class="variable">@h</span>.each <span class="keyword">do</span> |e| 
-      <span class="keyword">yield</span> e.each_with_object({}) { |(k, v), o| o[k] = v.strip } 
+    <span class="variable">@h</span>.each <span class="keyword">do</span> |e|
+      <span class="keyword">yield</span> e.each_with_object({}) { |(k, v), o| o[k] = v.strip }
     <span class="keyword">end</span>
   <span class="keyword">end</span>
 <span class="keyword">end</span></pre></div></div>
@@ -134,7 +134,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">bind</span><span class="params">(tpl)</span></span>
-  lambda { |context| <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl)).evaluate(context) }
+  -&gt; context { <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl)).evaluate(context) }
 <span class="keyword">end</span></pre></div></div>
             
         </li>
@@ -151,7 +151,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">copy_asset_to_output</span></span>
-  <span class="constant">FileUtils</span>.cp_r <span class="string">'views/.'</span>, <span class="string">'output'</span>, <span class="symbol">:verbose</span> =&gt; <span class="keyword">true</span>
+  <span class="constant">FileUtils</span>.cp_r <span class="string">'views/.'</span>, <span class="string">'output'</span>, <span class="symbol">verbose:</span> <span class="keyword">true</span>
 <span class="keyword">end</span></pre></div></div>
             
         </li>
@@ -170,10 +170,10 @@
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">video</span></span>
   v = <span class="constant">Video</span>.new <span class="string">'csv/all-video.csv'</span>
   tpl = bind <span class="string">'views/index.eruby'</span>
-  v.each_video <span class="keyword">do</span> |e| 
+  v.each_video <span class="keyword">do</span> |e|
     html = tpl.call e
     p <span class="string">"write output/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span> "</span>
-    <span class="constant">File</span>.write(<span class="string">"output/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span>.html"</span>, html)
+    <span class="constant">File</span>.write(<span class="string">"_output/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span>.html"</span>, html)
   <span class="keyword">end</span>
   copy_asset_to_output
 <span class="keyword">end</span></pre></div></div>
