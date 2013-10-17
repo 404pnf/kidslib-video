@@ -11,27 +11,6 @@
   <div id="container">
     <div id="background"></div>
     
-      <ul id="jump_to">
-        <li>
-          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
-          <a class="small" href="javascript:void(0);">+</a>
-          <div id="jump_wrapper">
-          <div id="jump_page">
-            
-              
-              <a class="source" href="generate_video_html.html">
-                generate_video_html.rb
-              </a>
-            
-              
-              <a class="source" href="video.html">
-                video.rb
-              </a>
-            
-          </div>
-        </li>
-      </ul>
-    
     <ul class="sections">
         
           <li id="title">
@@ -90,7 +69,11 @@
 <p>请确保csv文件的header与下面一一对应！</p>
 <pre><code>  &quot;title&quot;,&quot;video&quot;,&quot;category&quot;,&quot;age&quot;
   &quot;穿鞋真舒服&quot;,&quot; hb12_music_01&quot;,&quot;欢乐音乐屋&quot;,&quot;1-3岁&quot;</code></pre>
-<p>只要把video添加.flv后缀就是视频文件的文件名</p>
+<ol>
+<li>只要把video添加.flv后缀就是视频文件的文件名</li>
+<li>vidoe对应的值也作为文件名，添加.html后缀</li>
+<li>video对应的值是唯一的</li>
+</ol>
 <hr>
 
             </div>
@@ -105,8 +88,11 @@
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <h2>主程序</h2>
-<p>erubis中的@var 名就是csv的headers</p>
-<h2>有些记录有前后空白，需要strip掉</h2>
+<ol>
+<li>erubis中的@var 名就是csv的header对应的值</li>
+<li>有些记录有前后空白，需要strip掉</li>
+</ol>
+<hr>
 
             </div>
             
@@ -140,10 +126,10 @@
         <li id="section-6">
             <div class="annotation">
               
-              <div class="pilwrap for-h2">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <h2>closure, closure啊 :)</h2>
+              <p>这里用了 closure 啊 :)</p>
 
             </div>
             

@@ -21,14 +21,14 @@ require 'erubis'
 #       "title","video","category","age"
 #       "穿鞋真舒服"," hb12_music_01","欢乐音乐屋","1-3岁"
 #
-# 只要把video添加.flv后缀就是视频文件的文件名
-#
+# 1. 只要把video添加.flv后缀就是视频文件的文件名
+# 1. vidoe对应的值也作为文件名，添加.html后缀
+# 1. video对应的值是唯一的
 # ----
 
 # ## 主程序
-# erubis中的@var 名就是csv的headers
-#
-# 有些记录有前后空白，需要strip掉
+# 1. erubis中的@var 名就是csv的header对应的值
+# 1. 有些记录有前后空白，需要strip掉
 # ----
 
 class Video
@@ -43,7 +43,7 @@ class Video
   end
 end
 
-# ## closure, closure啊 :)
+# 这里用了 closure 啊 :)
 def bind(tpl)
   lambda { |context| Erubis::Eruby.new(File.read(tpl)).evaluate(context) }
 end
