@@ -107,10 +107,7 @@
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <h2>主程序</h2>
-<p>我们需要为erubis tpl准备3个变量。</p>
-<pre><code>  id, page_title, flv_url</code></pre>
-<p>对应csv中的</p>
-<pre><code>  video, title, video+&#39;.flv&#39;</code></pre>
+<p>erubis中的@var 名就是csv的headers</p>
 <hr>
 
             </div>
@@ -128,29 +125,19 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">Video</span></span>
-
   <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(file)</span></span>
     <span class="variable">@h</span> = <span class="constant">CSV</span>.table(file, <span class="symbol">converters:</span> <span class="keyword">nil</span>).map(&amp;<span class="symbol">:to_hash</span>)
   <span class="keyword">end</span>
 
   <span class="function"><span class="keyword">def</span> <span class="title">each_video</span></span>
-    <span class="variable">@h</span>.each <span class="keyword">do</span> |e|
-      id, title = e[<span class="symbol">:video</span>].strip, e[<span class="symbol">:title</span>].strip
-      flv_url = <span class="string">"../flv/<span class="subst">#{ e[<span class="symbol">:video</span>].strip }</span>.flv"</span>
-      context = {<span class="symbol">id:</span> id, <span class="symbol">title:</span> title, <span class="symbol">flv_url:</span> flv_url}
-      <span class="keyword">yield</span> context
+    <span class="variable">@h</span>.each <span class="keyword">do</span> |e| 
+      <span class="keyword">yield</span> e.each_with_object({}) { |(k, v), o| o[k] = v.strip } 
     <span class="keyword">end</span>
   <span class="keyword">end</span>
-
 <span class="keyword">end</span>
 
 <span class="function"><span class="keyword">def</span> <span class="title">bind</span><span class="params">(tpl)</span></span>
-  lambda { |context|
-    eruby = <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl))
-    html =  eruby.evaluate(context)
-    p <span class="string">"write <span class="subst">#{ context[<span class="symbol">:id</span>] }</span> "</span>
-    <span class="constant">File</span>.write(<span class="string">"_newoutput/html/<span class="subst">#{ context[<span class="symbol">:id</span>] }</span>.html"</span>, html)
-  }
+  lambda { |context| <span class="constant">Erubis::Eruby</span>.new(<span class="constant">File</span>.read(tpl)).evaluate(context) }
 <span class="keyword">end</span></pre></div></div>
             
         </li>
@@ -183,26 +170,16 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">video</span><span class="params">(file, tpl)</span></span>
-  v = <span class="constant">Video</span>.new(file)
-  tpl = bind(tpl)
-  v.each_video { |e| tpl.call e}
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">def</span> <span class="title">video</span></span>
+  v = <span class="constant">Video</span>.new <span class="string">'csv/all-video.csv'</span>
+  tpl = bind <span class="string">'views/index.eruby'</span>
+  v.each_video <span class="keyword">do</span> |e| 
+    html = tpl.call e
+    p <span class="string">"write <span class="subst">#{ e[<span class="symbol">:video</span>] }</span> "</span>
+    <span class="constant">File</span>.write(<span class="string">"_newoutput/html/<span class="subst">#{ e[<span class="symbol">:video</span>] }</span>.html"</span>, html)
+  <span class="keyword">end</span>
   copy_asset_to_output
 <span class="keyword">end</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-8">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-8">&#182;</a>
-              </div>
-              <h2>干活</h2>
-<p>video(&#39;csv/all-video.csv&#39;, &#39;views/index.eruby&#39;)</p>
-
-            </div>
             
         </li>
         

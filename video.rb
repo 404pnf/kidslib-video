@@ -60,7 +60,7 @@ def video
   v.each_video do |e| 
     html = tpl.call e
     p "write #{ e[:video] } "
-    File.write("_newoutput/html/#{ e[:video] }.html", html)
+    File.write("output/html/#{ e[:video] }.html", html)
   end
   copy_asset_to_output
 end
