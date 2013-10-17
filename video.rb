@@ -28,37 +28,24 @@ require 'erubis'
 # ----
 
 # ## 主程序
-# 我们需要为erubis tpl准备3个变量。
+# erubis中的@var 名就是csv的headers
 #
-#       id, page_title, flv_url
-# 对应csv中的
-#       video, title, video+'.flv'
 # ----
 
 class Video
-
   def initialize(file)
     @h = CSV.table(file, converters: nil).map(&:to_hash)
   end
 
   def each_video
-    @h.each do |e|
-      id, title = e[:video].strip, e[:title].strip
-      flv_url = "../flv/#{ e[:video].strip }.flv"
-      context = {id: id, title: title, flv_url: flv_url}
-      yield context
+    @h.each do |e| 
+      yield e.each_with_object({}) { |(k, v), o| o[k] = v.strip } 
     end
   end
-
 end
 
 def bind(tpl)
-  lambda { |context|
-    eruby = Erubis::Eruby.new(File.read(tpl))
-    html =  eruby.evaluate(context)
-    p "write #{ context[:id] } "
-    File.write("_newoutput/html/#{ context[:id] }.html", html)
-  }
+  lambda { |context| Erubis::Eruby.new(File.read(tpl)).evaluate(context) }
 end
 
 # views目录后的点 '.' 表示复制该目录下所有内容，但不创建该目录
@@ -70,7 +57,11 @@ end
 def video
   v = Video.new 'csv/all-video.csv'
   tpl = bind 'views/index.eruby'
-  v.each_video { |e| tpl.call e}
+  v.each_video do |e| 
+    html = tpl.call e
+    p "write #{ e[:video] } "
+    File.write("_newoutput/html/#{ e[:video] }.html", html)
+  end
   copy_asset_to_output
 end
 
