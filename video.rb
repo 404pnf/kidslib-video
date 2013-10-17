@@ -10,10 +10,8 @@
 # ----
 
 # ## 需要库
-# 不再用erubis了。因为erb是ruby标准库的。
 # 为了方便让有ruby但没有gem的环境使用，尽量都使用标准库中的东西。
 require 'csv'
-require 'erb'
 require 'fileutils'
 require 'erubis'
 
@@ -30,6 +28,7 @@ require 'erubis'
 # ## 主程序
 # erubis中的@var 名就是csv的headers
 #
+# 有些记录有前后空白，需要strip掉
 # ----
 
 class Video
@@ -44,6 +43,7 @@ class Video
   end
 end
 
+# ## closure, closure啊 :)
 def bind(tpl)
   lambda { |context| Erubis::Eruby.new(File.read(tpl)).evaluate(context) }
 end
@@ -59,7 +59,7 @@ def video
   tpl = bind 'views/index.eruby'
   v.each_video do |e| 
     html = tpl.call e
-    p "write #{ e[:video] } "
+    p "write output/html/#{ e[:video] } "
     File.write("output/html/#{ e[:video] }.html", html)
   end
   copy_asset_to_output
