@@ -31,6 +31,7 @@ require 'erubis'
 # 1. 有些记录有前后空白，需要strip掉
 # ----
 
+## 类只是为了封装
 class Video
   def initialize(file)
     @h = CSV.table(file, converters: nil).map(&:to_hash)
